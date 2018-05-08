@@ -21,7 +21,11 @@ function ajax_process_batch() {
 
 	$job_id = ! empty( $_POST['job_id'] ) ? sanitize_text_field( $_POST['job_id'] ) : false;
 
-	$job = new Job( $job_id );
+	try {
+		$job = new Job( $job_id );
+	} catch( \InvalidArgumentException $exception ) {
+		$job = false;
+	}
 
 	if( ! $job_id || empty( $job ) || ! is_callable( $job->callback() ) ) {
 		wp_send_json_error( array(
