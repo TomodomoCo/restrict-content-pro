@@ -54,7 +54,8 @@ function delete_batch_job( $name ) {
  *
  * @since 3.0
  *
- * @param JobInterface $job
+ * @param JobInterface $job The job to process.
+ * @param int $step The step to process.
  * @return bool|\WP_Error True if the batch was successful, WP_Error if not.
  */
 function process_batch( JobInterface $job, $step = 0 ) {
