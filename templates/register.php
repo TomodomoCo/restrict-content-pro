@@ -152,6 +152,56 @@ rcp_show_error_messages( 'register' ); ?>
 		<?php endif; ?>
 	</div>
 
+	<?php if ( ! empty( $rcp_options['enable_terms'] ) ) : ?>
+		<fieldset class="rcp_agree_to_terms_fieldset">
+			<p id="rcp_agree_to_terms_wrap">
+				<input type="checkbox" id="rcp_agree_to_terms" name="rcp_agree_to_terms" value="1">
+				<label for="rcp_agree_to_terms">
+					<?php
+					if ( ! empty( $rcp_options['terms_link'] ) ) {
+						echo '<a href="' . esc_url( $rcp_options['terms_link'] ) . '" target="_blank">';
+					}
+
+					if ( ! empty( $rcp_options['terms_label'] ) ) {
+						echo $rcp_options['terms_label'];
+					} else {
+						_e( 'I agree to the terms and conditions', 'rcp' );
+					}
+
+					if ( ! empty( $rcp_options['terms_link'] ) ) {
+						echo '</a>';
+					}
+					?>
+				</label>
+			</p>
+		</fieldset>
+	<?php endif; ?>
+
+	<?php if ( ! empty( $rcp_options['enable_privacy_policy'] ) ) : ?>
+		<fieldset class="rcp_agree_to_privacy_policy_fieldset">
+			<p id="rcp_agree_to_privacy_policy_wrap">
+				<input type="checkbox" id="rcp_agree_to_privacy_policy" name="rcp_agree_to_privacy_policy" value="1">
+				<label for="rcp_agree_to_privacy_policy">
+					<?php
+					if ( ! empty( $rcp_options['privacy_policy_link'] ) ) {
+						echo '<a href="' . esc_url( $rcp_options['privacy_policy_link'] ) . '" target="_blank">';
+					}
+
+					if ( ! empty( $rcp_options['privacy_policy_label'] ) ) {
+						echo $rcp_options['privacy_policy_label'];
+					} else {
+						_e( 'I agree to the privacy policy', 'rcp' );
+					}
+
+					if ( ! empty( $rcp_options['privacy_policy_link'] ) ) {
+						echo '</a>';
+					}
+					?>
+				</label>
+			</p>
+		</fieldset>
+	<?php endif; ?>
+
 	<?php do_action( 'rcp_before_registration_submit_field', $levels ); ?>
 
 	<p id="rcp_submit_wrap">

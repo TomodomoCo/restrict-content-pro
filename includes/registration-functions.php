@@ -103,6 +103,16 @@ function rcp_process_registration() {
 		$gateway_obj->validate_fields();
 	}
 
+	// If enabled, terms agreemnet must be checked.
+	if ( ! empty( $rcp_options['enable_terms'] ) && ! isset( $_POST['rcp_agree_to_terms'] ) ) {
+		rcp_errors()->add( 'terms_not_agreed', __( 'You must agree to the terms and conditions', 'rcp' ), 'register' );
+	}
+
+	// If enabled, privacy policy agreement must be checked.
+	if ( ! empty( $rcp_options['enable_privacy_policy'] ) && ! isset( $_POST['rcp_agree_to_privacy_policy'] ) ) {
+		rcp_errors()->add( 'privacy_policy_not_agreed', __( 'You must agree to the privacy policy', 'rcp' ), 'register' );
+	}
+
 	do_action( 'rcp_form_errors', $_POST );
 
 	// retrieve all error messages, if any
@@ -164,6 +174,30 @@ function rcp_process_registration() {
 
 	// Setup the member object
 	$member = new RCP_Member( $user_data['id'] );
+
+	// Save agreement to terms and privacy policy.
+	if ( ! empty( $_POST['rcp_agree_to_terms'] ) ) {
+		$terms_agreed = get_user_meta( $member->ID, 'rcp_terms_agreed', true );
+
+		if ( ! is_array( $terms_agreed ) ) {
+			$terms_agreed = array();
+		}
+
+		$terms_agreed[] = current_time( 'timestamp' );
+
+		update_user_meta( $member->ID, 'rcp_terms_agreed', $terms_agreed );
+	}
+	if ( ! empty( $_POST['rcp_agree_to_privacy_policy'] ) ) {
+		$privacy_policy_agreed = get_user_meta( $member->ID, 'rcp_privacy_policy_agreed', true );
+
+		if ( ! is_array( $privacy_policy_agreed ) ) {
+			$privacy_policy_agreed = array();
+		}
+
+		$privacy_policy_agreed[] = current_time( 'timestamp' );
+
+		update_user_meta( $member->ID, 'rcp_privacy_policy_agreed', $privacy_policy_agreed );
+	}
 
 	update_user_meta( $user_data['id'], '_rcp_new_subscription', '1' );
 

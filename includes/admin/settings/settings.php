@@ -1648,6 +1648,60 @@ function rcp_settings_page() {
 						</tr>
 						<tr valign="top">
 							<th>
+								<label for="rcp_settings[enable_terms]"><?php _e( 'Agree to Terms', 'rcp' ); ?></label>
+							</th>
+							<td>
+								<input type="checkbox" value="1" name="rcp_settings[enable_terms]" id="rcp_settings[enable_terms]" <?php if ( isset( $rcp_options['enable_terms'] ) ) checked('1', $rcp_options['enable_terms'] ); ?>/>
+								<span class="description"><?php _e( 'Check this to add an "Agree to Terms" checkbox to the registration form.', 'rcp' ); ?></span>
+							</td>
+						</tr>
+						<tr valign="top">
+							<th>
+								<label for="rcp_settings[terms_label]">&nbsp;&mdash;&nbsp;<?php _e( 'Agree to Terms Label', 'rcp' ); ?></label>
+							</th>
+							<td>
+								<input id="rcp_settings[terms_label]" style="width: 300px;" name="rcp_settings[terms_label]" type="text" value="<?php if( isset( $rcp_options['terms_label'] ) ) echo esc_attr( $rcp_options['terms_label'] ); ?>" />
+								<p class="description"><?php _e( 'Label shown next to the agree to terms checkbox.', 'rcp' ); ?></p>
+							<td>
+						</tr>
+						<tr valign="top">
+							<th>
+								<label for="rcp_settings[terms_link]">&nbsp;&mdash;&nbsp;<?php _e( 'Terms Link', 'rcp' ); ?></label>
+							</th>
+							<td>
+								<input id="rcp_settings[terms_link]" style="width: 300px;" name="rcp_settings[terms_link]" type="text" value="<?php if( isset( $rcp_options['terms_link'] ) ) echo esc_attr( $rcp_options['terms_link'] ); ?>" placeholder="https://" />
+								<p class="description"><?php _e( 'Optional - the URL to your terms page. If set, the terms label will link to this URL.', 'rcp' ); ?></p>
+							<td>
+						</tr>
+						<tr valign="top">
+							<th>
+								<label for="rcp_settings[enable_privacy_policy]"><?php _e( 'Agree to Privacy Policy', 'rcp' ); ?></label>
+							</th>
+							<td>
+								<input type="checkbox" value="1" name="rcp_settings[enable_privacy_policy]" id="rcp_settings[enable_privacy_policy]" <?php if ( isset( $rcp_options['enable_privacy_policy'] ) ) checked('1', $rcp_options['enable_privacy_policy'] ); ?>/>
+								<span class="description"><?php _e( 'Check this to add an "Agree to Privacy Policy" checkbox to the registration form.', 'rcp' ); ?></span>
+							</td>
+						</tr>
+						<tr valign="top">
+							<th>
+								<label for="rcp_settings[privacy_policy_label]">&nbsp;&mdash;&nbsp;<?php _e( 'Agree to Privacy Policy Label', 'rcp' ); ?></label>
+							</th>
+							<td>
+								<input id="rcp_settings[privacy_policy_label]" style="width: 300px;" name="rcp_settings[privacy_policy_label]" type="text" value="<?php if( isset( $rcp_options['privacy_policy_label'] ) ) echo esc_attr( $rcp_options['privacy_policy_label'] ); ?>" />
+								<p class="description"><?php _e( 'Label shown next to the agree to privacy policy checkbox.', 'rcp' ); ?></p>
+							<td>
+						</tr>
+						<tr valign="top">
+							<th>
+								<label for="rcp_settings[privacy_policy_link]">&nbsp;&mdash;&nbsp;<?php _e( 'Privacy Policy Link', 'rcp' ); ?></label>
+							</th>
+							<td>
+								<input id="rcp_settings[privacy_policy_link]" style="width: 300px;" name="rcp_settings[privacy_policy_link]" type="text" value="<?php if( isset( $rcp_options['privacy_policy_link'] ) ) echo esc_attr( $rcp_options['privacy_policy_link'] ); ?>" placeholder="https://" />
+								<p class="description"><?php _e( 'Optional - the URL to your privacy policy page. If set, the privacy policy label will link to this URL.', 'rcp' ); ?></p>
+							<td>
+						</tr>
+						<tr valign="top">
+							<th>
 								<label for="rcp_settings[enable_recaptcha]"><?php _e( 'Enable reCaptcha', 'rcp' ); ?></label>
 							</th>
 							<td>

@@ -194,6 +194,44 @@ if ( 'pending' == $current_status ) {
 					<p class="description"><?php _e( 'Use this area to record notes about this user if needed', 'rcp' ); ?></p>
 				</td>
 			</tr>
+			<?php if ( ! empty( $rcp_options['enable_terms'] ) ) : ?>
+			<tr valign="top">
+				<th scope="row" valign="top">
+					<label for="rcp-terms-agreed"><?php _e( 'Agreed to Terms', 'rcp' ); ?></label>
+				</th>
+				<td>
+					<?php
+					$terms_agreed = get_user_meta( $member->ID, 'rcp_terms_agreed', true );
+					if ( ! empty( $terms_agreed ) && is_array( $terms_agreed ) ) {
+						foreach ( $terms_agreed as $terms_agreed_date ) {
+							echo date_i18n( get_option( 'date_format' ) . ' H:i:s', $terms_agreed_date ) . '<br />';
+						}
+					} else {
+						_e( 'None', 'rcp' );
+					}
+					?>
+				</td>
+			</tr>
+			<?php endif; ?>
+			<?php if ( ! empty( $rcp_options['enable_privacy_policy'] ) ) : ?>
+				<tr valign="top">
+					<th scope="row" valign="top">
+						<label for="rcp-privacy-policy-agreed"><?php _e( 'Agreed to Privacy Policy', 'rcp' ); ?></label>
+					</th>
+					<td>
+						<?php
+						$privacy_policy_agreed = get_user_meta( $member->ID, 'rcp_privacy_policy_agreed', true );
+						if ( ! empty( $privacy_policy_agreed ) && is_array( $privacy_policy_agreed ) ) {
+							foreach ( $privacy_policy_agreed as $privacy_policy_agreed_date ) {
+								echo date_i18n( get_option( 'date_format' ) . ' H:i:s', $privacy_policy_agreed_date ) . '<br />';
+							}
+						} else {
+							_e( 'None', 'rcp' );
+						}
+						?>
+					</td>
+				</tr>
+			<?php endif; ?>
 			<tr class="form-field">
 				<th scope="row" valign="top">
 					<?php _e( 'Discount codes used', 'rcp' ); ?>
