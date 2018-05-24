@@ -94,7 +94,7 @@ jQuery(document).ready(function($) {
 	//when the history state changes, gets the url from the hash and display
 	$(window).bind( 'hashchange', function(e) {
 
-		if ( ! window.adminpage || ( window.adminpage && 'restrict_page_rcp-settings' !== window.adminpage ) ) {
+		if ( $('#rcp-settings-wrap').length == 0) {
 			return;
 		}
 
