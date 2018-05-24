@@ -237,7 +237,7 @@ function rcp_process_bulk_edit_members() {
 		$member = new RCP_Member( $member_id );
 
 		if ( ! empty( $_POST['expiration'] ) && 'delete' !== $action ) {
-			$member->set_expiration_date( date( 'Y-m-d H:i:s', strtotime( $_POST['expiration'], current_time( 'timestamp' ) ) ) );
+			$member->set_expiration_date( date( 'Y-m-d 23:59:59', strtotime( $_POST['expiration'], current_time( 'timestamp' ) ) ) );
 		}
 
 		if ( $action ) {
