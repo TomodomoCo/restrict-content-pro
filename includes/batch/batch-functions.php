@@ -59,5 +59,16 @@ function delete_batch_job( $name ) {
  * @return bool|\WP_Error True if the batch was successful, WP_Error if not.
  */
 function process_batch( JobInterface $job, $step = 0 ) {
-	return call_user_func( $job->callback(), $job, $step );
+
+	$result = call_user_func( $job->callback(), $job, $step );
+
+	if( true === $result ) {
+		return $result;
+	}
+
+	if( is_wp_error( $result ) ) {
+		return $result;
+	}
+
+	return new \WP_Error( _sprintf( __( 'An unknown error occurred processing %s.', 'rcp' ), $job->name() ) );
 }

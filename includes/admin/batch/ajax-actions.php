@@ -47,6 +47,7 @@ function ajax_process_batch() {
 		) );
 	}
 
+	// An error occurred during process. Return the error message.
 	if( is_wp_error( $result ) ) {
 		// TODO: what to do with failed jobs?
 		wp_send_json_error( array(
@@ -57,6 +58,7 @@ function ajax_process_batch() {
 		) );
 	}
 
+	// We didn't get an expected return.
 	wp_send_json_error( array(
 		'message'         => sprintf( __( 'An unknown error occurred processing %s.', 'rcp' ), $job->name() ),
 		'step'            => $step,
