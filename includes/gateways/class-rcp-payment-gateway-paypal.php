@@ -287,7 +287,7 @@ class RCP_Payment_Gateway_PayPal extends RCP_Payment_Gateway {
 			}
 
 			$subscription_key   = $posted['item_number'];
-			$has_trial          = ! empty( $posted['period1'] );
+			$has_trial          = isset( $posted['mc_amount1'] ) && '0.00' == $posted['mc_amount1'];
 			$amount             = ! $has_trial ? number_format( (float) $posted['mc_gross'], 2, '.', '' ) : number_format( (float) $posted['mc_amount1'], 2, '.', '' );
 
 			$payment_status     = ! empty( $posted['payment_status'] ) ? $posted['payment_status'] : false;
@@ -355,10 +355,6 @@ class RCP_Payment_Gateway_PayPal extends RCP_Payment_Gateway {
 					die( 'invalid currency code' );
 				}
 
-			}
-
-			if( isset( $rcp_options['email_ipn_reports'] ) ) {
-				wp_mail( get_bloginfo('admin_email'), __( 'IPN report', 'rcp' ), $listener->getTextReport() );
 			}
 
 			/* now process the kind of subscription/payment */
@@ -435,7 +431,11 @@ class RCP_Payment_Gateway_PayPal extends RCP_Payment_Gateway {
 					if( ! $member->just_upgraded() ) {
 
 						// user is marked as cancelled but retains access until end of term
-						$member->cancel();
+						if ( $member->is_active() ) {
+							$member->cancel();
+						} else {
+							rcp_log( sprintf( 'Member #%d is not active - not cancelling account.', $member->ID ) );
+						}
 
 						// set the use to no longer be recurring
 						delete_user_meta( $user_id, 'rcp_paypal_subscriber' );
@@ -554,11 +554,6 @@ class RCP_Payment_Gateway_PayPal extends RCP_Payment_Gateway {
 		} else {
 
 			rcp_log( 'Invalid PayPal IPN attempt.' );
-
-			if( isset( $rcp_options['email_ipn_reports'] ) ) {
-				// an invalid IPN attempt was made. Send an email to the admin account to investigate
-				wp_mail( get_bloginfo( 'admin_email' ), __( 'Invalid IPN', 'rcp' ), $listener->getTextReport() );
-			}
 
 			status_header( 400 );
 			die( 'invalid IPN' );

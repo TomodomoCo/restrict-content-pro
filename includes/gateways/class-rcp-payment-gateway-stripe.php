@@ -47,6 +47,13 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 			require_once RCP_PLUGIN_DIR . 'includes/libraries/stripe/init.php';
 		}
 
+		\Stripe\Stripe::setApiKey( $this->secret_key );
+
+		\Stripe\Stripe::setApiVersion( '2018-02-06' );
+
+		if ( method_exists( '\Stripe\Stripe', 'setAppInfo' ) ) {
+			\Stripe\Stripe::setAppInfo( 'Restrict Content Pro', RCP_PLUGIN_VERSION, esc_url( site_url() ) );
+		}
 	}
 
 	/**
@@ -64,12 +71,6 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 		 * @var RCP_Payments $rcp_payments_db
 		 */
 		global $rcp_payments_db;
-
-		\Stripe\Stripe::setApiKey( $this->secret_key );
-
-		if ( method_exists( '\Stripe\Stripe', 'setAppInfo' ) ) {
-			\Stripe\Stripe::setAppInfo( 'Restrict Content Pro', RCP_PLUGIN_VERSION, esc_url( site_url() ) );
-		}
 
 		$paid   = false;
 		$member = new RCP_Member( $this->user_id );
@@ -116,8 +117,12 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 
 				$customer = \Stripe\Customer::create( apply_filters( 'rcp_stripe_customer_create_args', $customer_args, $this ) );
 
-				// A temporary invoice is created to force the customer's currency to be set to the store currency. See https://github.com/restrictcontentpro/restrict-content-pro/issues/549
-				if ( ! empty( $this->signup_fee ) ) {
+				/*
+				 * A temporary invoice is created to force the customer's currency to be set to the store currency.
+				 * See https://github.com/restrictcontentpro/restrict-content-pro/issues/549
+				 * See https://github.com/restrictcontentpro/restrict-content-pro/issues/382
+				 */
+				if ( ! empty( $this->signup_fee ) || ! empty( $this->discount_code ) ) {
 
 					\Stripe\InvoiceItem::create( array(
 						'customer'    => $customer->id,
@@ -521,8 +526,6 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 			define( 'DONOTCACHEPAGE', true );
 		}
 
-		\Stripe\Stripe::setApiKey( $this->secret_key );
-
 		// retrieve the request's body and parse it as JSON
 		$body          = @file_get_contents( 'php://input' );
 		$event_json_id = json_decode( $body );
@@ -713,14 +716,27 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 
 						rcp_log( 'Processing Stripe customer.subscription.deleted webhook.' );
 
-						if( $payment_event->id == $member->get_merchant_subscription_id() ) {
+						/**
+						 * Only cancel the subscription if this isn't a new signup or manual renewal.
+						 * If the member went through the registration form they'll have the meta flag `_rcp_new_subscription`
+						 * and the cancellation will have been done as part of the signup process to cancel old
+						 * subscriptions. We don't need to trigger a status change for that.
+						 * @see https://github.com/restrictcontentpro/restrict-content-pro/issues/1626
+						 */
+						if( $payment_event->id == $member->get_merchant_subscription_id() && ! get_user_meta( $member->ID, '_rcp_new_subscription', true ) ) {
 
-							$member->cancel();
+							if ( $member->is_active() ) {
+								$member->cancel();
+							} else {
+								rcp_log( sprintf( 'Member #%d is not active - not cancelling account.', $member->ID ) );
+							}
 
 							do_action( 'rcp_webhook_cancel', $member, $this );
 
 							die( 'member cancelled successfully' );
 
+						} else {
+							rcp_log( sprintf( 'Payment event ID (%s) doesn\'t match member\'s merchant subscription ID (%s).', $payment_event->id, $member->get_merchant_subscription_id() ) );
 						}
 
 					}
@@ -909,17 +925,20 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 		$plan_id        = sprintf( '%s-%s-%s', strtolower( str_replace( ' ', '', $plan->name ) ), $plan->price, $plan->duration . $plan->duration_unit );
 		$currency       = strtolower( rcp_get_currency() );
 
-		\Stripe\Stripe::setApiKey( $this->secret_key );
-
 		try {
+
+			$product = \Stripe\Product::create( array(
+				'name' => $name,
+				'type' => 'service'
+			) );
 
 			$plan = \Stripe\Plan::create( array(
 				"amount"         => $price,
 				"interval"       => $interval,
 				"interval_count" => $interval_count,
-				"name"           => $name,
 				"currency"       => $currency,
-				"id"             => $plan_id
+				"id"             => $plan_id,
+				"product"        => $product->id
 			) );
 
 			// plann successfully created
@@ -941,8 +960,6 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 	 * @return bool|string false if the plan doesn't exist, plan id if it does
 	 */
 	private function plan_exists( $plan ) {
-
-		\Stripe\Stripe::setApiKey( $this->secret_key );
 
 		if ( ! $plan = rcp_get_subscription_details( $plan ) ) {
 			return false;

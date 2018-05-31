@@ -798,6 +798,11 @@ function rcp_get_restricted_post_types() {
  */
 function rcp_get_post_type_restrictions( $post_type ) {
 	$restricted_post_types = rcp_get_restricted_post_types();
+
+	if ( empty( $post_type ) || empty( $restricted_post_types ) ) {
+		return array();
+	}
+
 	return array_key_exists( $post_type, $restricted_post_types ) ? $restricted_post_types[ $post_type ] : array();
 }
 

@@ -55,9 +55,14 @@ final class RCP_Reminders {
 			'-3months' => __( 'Three months after expiration', 'rcp' )
 		);
 
-		return $periods;
-
-		//return apply_filters( 'rcp_reminder_notice_periods', $periods );
+		/**
+		 * Filters the available notice periods.
+		 *
+		 * @param array $periods
+		 *
+		 * @since 2.9.8
+		 */
+		return apply_filters( 'rcp_reminder_notice_periods', $periods );
 
 	}
 

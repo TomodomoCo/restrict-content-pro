@@ -512,12 +512,12 @@ add_shortcode( 'rcp_profile_editor', 'rcp_profile_editor_shortcode' );
 function rcp_update_billing_card_shortcode( $atts, $content = null ) {
 	global $rcp_load_css, $rcp_load_scripts;
 
-	$rcp_load_css = true;
-	$rcp_load_scripts = true;
-
 	ob_start();
 
 	if( rcp_member_can_update_billing_card() ) {
+
+		$rcp_load_css = true;
+		$rcp_load_scripts = true;
 
 		do_action( 'rcp_before_update_billing_card_form' );
 

@@ -39,10 +39,14 @@ function rcp_process_add_subscription_level() {
 
 	$level_id = $levels->insert( $_POST );
 
-	if ( $level_id ) {
+	if ( $level_id && ! is_wp_error( $level_id ) ) {
 		$url = admin_url( 'admin.php?page=rcp-member-levels&rcp_message=level_added' );
 	} else {
-		$url = admin_url( 'admin.php?page=rcp-member-levels&rcp_message=level_not_added' );
+		if ( is_wp_error( $level_id ) ) {
+			$url = add_query_arg( 'rcp_message', urlencode( $level_id->get_error_code() ), 'admin.php?page=rcp-member-levels' );
+		} else {
+			$url = admin_url( 'admin.php?page=rcp-member-levels&rcp_message=level_not_added' );
+		}
 	}
 	wp_safe_redirect( $url );
 	exit;
@@ -69,10 +73,14 @@ function rcp_process_edit_subscription_level() {
 	$levels = new RCP_Levels();
 	$update = $levels->update( $_POST['subscription_id'], $_POST );
 
-	if ( $update ) {
+	if ( $update && ! is_wp_error( $update ) ) {
 		$url = admin_url( 'admin.php?page=rcp-member-levels&rcp_message=level_updated' );
 	} else {
-		$url = admin_url( 'admin.php?page=rcp-member-levels&rcp_message=level_not_updated' );
+		if ( is_wp_error( $update ) ) {
+			$url = add_query_arg( 'rcp_message', urlencode( $update->get_error_code() ), 'admin.php?page=rcp-member-levels' );
+		} else {
+			$url = admin_url( 'admin.php?page=rcp-member-levels&rcp_message=level_not_updated' );
+		}
 	}
 
 	wp_safe_redirect( $url );

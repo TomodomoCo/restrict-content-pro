@@ -71,7 +71,7 @@ function rcp_check_for_expired_users() {
 			AND  (mt1.meta_key = 'rcp_expiration'
 				AND CAST(mt1.meta_value AS CHAR) != 'none')
 			AND  (mt2.meta_key = 'rcp_status'
-				AND CAST(mt2.meta_value AS CHAR) = 'active') )
+				AND CAST(mt2.meta_value AS CHAR) IN('active', 'cancelled')) )
 		ORDER BY user_login ASC LIMIT 9999";
 
 	$query = apply_filters( 'rcp_check_for_expired_users_query_filter', $query );

@@ -158,15 +158,33 @@ function rcp_admin_notices() {
 				$text = __( 'Subscription level updated', 'rcp' );
 				break;
 
+			case 'invalid_level_price' :
+
+				$text  = __( 'Invalid price: the subscription level price must be a valid positive number.', 'rcp' );
+				$class = 'error';
+				break;
+
+			case 'invalid_level_fee' :
+
+				$text  = __( 'Invalid fee: the subscription level price must be a valid positive number.', 'rcp' );
+				$class = 'error';
+				break;
+
+			case 'invalid_level_trial' :
+
+				$text = sprintf( __( 'Invalid trial: a subscription level with a trial must have a price and duration greater than zero. Please see <a href="%s">the documentation article on creating trials</a> for further instructions.', 'rcp' ), 'http://docs.restrictcontentpro.com/article/1764-creating-free-trials' );
+				$class = 'error';
+				break;
+
 			case 'level_not_added' :
 
-				$text = __( 'Subscription level could not be added', 'rcp' );
+				$text  = __( 'An unexpected error occurred while trying to add the subscription level.', 'rcp' );
 				$class = 'error';
 				break;
 
 			case 'level_not_updated' :
 
-				$text = __( 'Subscription level could not be updated', 'rcp' );
+				$text = __( 'An unexpected error occurred while trying to update the subscription level.', 'rcp' );
 				$class = 'error';
 				break;
 
@@ -254,6 +272,18 @@ function rcp_admin_notices() {
 			case 'test_reminder_sent' :
 
 				$text = __( 'Test reminder sent successfully', 'rcp' );
+				break;
+
+			case 'test_email_sent' :
+
+				$current_user = wp_get_current_user();
+				$text         = sprintf( __( 'Test email sent successfully to %s', 'rcp' ), $current_user->user_email );
+				break;
+
+			case 'test_email_not_sent' :
+
+				$text  = __( 'Test email failed to send.', 'rcp' );
+				$class = 'error';
 				break;
 		}
 

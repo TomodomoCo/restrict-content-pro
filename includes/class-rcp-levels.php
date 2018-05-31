@@ -143,7 +143,7 @@ class RCP_Levels {
 		else
 			$limit = '';
 
-		$cache_key = md5( implode( '|', $args ) . $where );
+		$cache_key = md5( implode( '|', $args ) );
 
 		$levels = wp_cache_get( $cache_key, 'rcp' );
 
@@ -243,7 +243,7 @@ class RCP_Levels {
 	 *
 	 * @access  public
 	 * @since   1.5
-	 * @return  int|false ID of the newly created level or false on failure.
+	 * @return  int|WP_Error ID of the newly created level or WP_Error on failure.
 	 */
 	public function insert( $args = array() ) {
 
@@ -281,14 +281,14 @@ class RCP_Levels {
 		if ( false === $this->valid_amount( $args['price'] ) || $args['price'] < 0 ) {
 			rcp_log( sprintf( 'Failed inserting subscription level: invalid price ( %s ).', $args['price'] ) );
 
-			return false;
+			return new WP_Error( 'invalid_level_price', __( 'Invalid price: the subscription level price must be a valid positive number.', 'rcp' ) );
 		}
 
 		// Validate fee value
 		if ( false === $this->valid_amount( $args['fee'] ) ) {
 			rcp_log( sprintf( 'Failed inserting subscription level: invalid fee ( %s ).', $args['fee'] ) );
 
-			return false;
+			return new WP_Error( 'invalid_level_fee', __( 'Invalid fee: the subscription level fee must be a valid number.', 'rcp' ) );
 		}
 
 		/**
@@ -299,7 +299,7 @@ class RCP_Levels {
 			if ( $args['price'] <= 0 || $args['duration'] <= 0 ) {
 				rcp_log( sprintf( 'Failed inserting subscription level: invalid settings for free trial. Price: %f; Duration: %d', $args['price'], $args['duration'] ) );
 
-				return false;
+				return new WP_Error( 'invalid_level_trial', __( 'Invalid trial: a subscription level with a trial must have a price and duration greater than zero.', 'rcp' ) );
 			}
 		}
 
@@ -337,6 +337,7 @@ class RCP_Levels {
 
 			$level_id = $wpdb->insert_id;
 
+			// Delete caches for both "all" statuses and "active" statuses.
 			$cache_args = array(
 				'status'  => 'all',
 				'limit'   => null,
@@ -346,6 +347,12 @@ class RCP_Levels {
 			$cache_key = md5( implode( '|', $cache_args ) );
 
 			wp_cache_delete( $cache_key, 'rcp' );
+
+			$cache_args['status'] = 'active';
+			$cache_key            = md5( implode( '|', $cache_args ) );
+			wp_cache_delete( $cache_key, 'rcp' );
+
+			// Delete transients for level counts.
 			delete_transient( md5( 'rcp_levels_count_' . serialize( array( 'status' => 'all' ) ) ) );
 			delete_transient( md5( 'rcp_levels_count_' . serialize( array( 'status' => $args['status'] ) ) ) );
 
@@ -358,7 +365,7 @@ class RCP_Levels {
 			rcp_log( sprintf( 'Failed inserting new subscription level into database. Args: %s', var_export( $args, true ) ) );
 		}
 
-		return false;
+		return new WP_Error( 'level_not_added', __( 'An unexpected error occurred while trying to add the subscription level.', 'rcp' ) );
 
 	}
 
@@ -371,7 +378,7 @@ class RCP_Levels {
 	 *
 	 * @access  public
 	 * @since   1.5
-	 * @return  bool Whether or not the update was successful.
+	 * @return  true|WP_Error True if the update was successful, WP_Error on failure.
 	 */
 	public function update( $level_id = 0, $args = array() ) {
 
@@ -395,14 +402,14 @@ class RCP_Levels {
 		if ( false === $this->valid_amount( $args['price'] ) || $args['price'] < 0 ) {
 			rcp_log( sprintf( 'Failed updating subscription level #%d: invalid price ( %s ).', $level_id, $args['price'] ) );
 
-			return false;
+			return new WP_Error( 'invalid_level_price', __( 'Invalid price: the subscription level price must be a valid positive number.', 'rcp' ) );
 		}
 
 		// Validate fee value
 		if ( false === $this->valid_amount( $args['fee'] ) ) {
 			rcp_log( sprintf( 'Failed updating subscription level #%d: invalid fee ( %s ).', $level_id, $args['fee'] ) );
 
-			return false;
+			return new WP_Error( 'invalid_level_fee', __( 'Invalid fee: the subscription level fee must be a valid number.', 'rcp' ) );
 		}
 
 		/**
@@ -413,7 +420,7 @@ class RCP_Levels {
 			if ( $args['price'] <= 0 || $args['duration'] <= 0 ) {
 				rcp_log( sprintf( 'Failed updating subscription level #%d: invalid settings for free trial. Price: %f; Duration: %d', $level_id, $args['price'], $args['duration'] ) );
 
-				return false;
+				return new WP_Error( 'invalid_level_trial', __( 'Invalid trial: a subscription level with a trial must have a price and duration greater than zero.', 'rcp' ) );
 			}
 		}
 
@@ -448,6 +455,7 @@ class RCP_Levels {
 			)
 		);
 
+		// Delete caches for both "all" statuses and "active" statuses.
 		$cache_args = array(
 			'status'  => 'all',
 			'limit'   => null,
@@ -457,7 +465,14 @@ class RCP_Levels {
 		$cache_key = md5( implode( '|', $cache_args ) );
 
 		wp_cache_delete( $cache_key, 'rcp' );
+
+		$cache_args['status'] = 'active';
+		$cache_key            = md5( implode( '|', $cache_args ) );
+		wp_cache_delete( $cache_key, 'rcp' );
+
 		wp_cache_delete( 'level_' . $level_id, 'rcp' );
+
+		// Delete transients for level counts.
 		delete_transient( md5( 'rcp_levels_count_' . serialize( array( 'status' => 'all' ) ) ) );
 		delete_transient( md5( 'rcp_levels_count_' . serialize( array( 'status' => 'active' ) ) ) );
 		delete_transient( md5( 'rcp_levels_count_' . serialize( array( 'status' => 'inactive' ) ) ) );
@@ -472,7 +487,7 @@ class RCP_Levels {
 
 		rcp_log( sprintf( 'Failed updating subscription level #%d. Args: %s', absint( $level_id ), var_export( $args, true ) ) );
 
-		return false;
+		return new WP_Error( 'level_not_added', __( 'An unexpected error occurred while trying to update the subscription level.', 'rcp' ) );
 
 	}
 
@@ -492,6 +507,7 @@ class RCP_Levels {
 
 		$remove = $wpdb->query( $wpdb->prepare( "DELETE FROM " . $this->db_name . " WHERE `id`='%d';", absint( $level_id ) ) );
 
+		// Delete caches for both "all" statuses and "active" statuses.
 		$args = array(
 			'status'  => 'all',
 			'limit'   => null,
@@ -501,6 +517,12 @@ class RCP_Levels {
 		$cache_key = md5( implode( '|', $args ) );
 
 		wp_cache_delete( $cache_key, 'rcp' );
+
+		$cache_args['status'] = 'active';
+		$cache_key            = md5( implode( '|', $cache_args ) );
+		wp_cache_delete( $cache_key, 'rcp' );
+
+		// Delete transients for level counts.
 		delete_transient( md5( 'rcp_levels_count_' . serialize( array( 'status' => 'all' ) ) ) );
 		delete_transient( md5( 'rcp_levels_count_' . serialize( array( 'status' => 'active' ) ) ) );
 		delete_transient( md5( 'rcp_levels_count_' . serialize( array( 'status' => 'inactive' ) ) ) );

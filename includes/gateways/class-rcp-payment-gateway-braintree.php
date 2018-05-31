@@ -523,7 +523,11 @@ class RCP_Payment_Gateway_Braintree extends RCP_Payment_Gateway {
 					die( 'subscription_canceled returned early. Member just upgraded.' );
 				}
 
-				$member->cancel();
+				if ( $member->is_active() ) {
+					$member->cancel();
+				} else {
+					rcp_log( sprintf( 'Member #%d is not active - not cancelling account.', $member->ID ) );
+				}
 
 				/**
 				 * There won't be a paidThroughDate if a trial user cancels,
