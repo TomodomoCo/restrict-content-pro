@@ -414,7 +414,7 @@ class RCP_Payment_Gateway_Braintree extends RCP_Payment_Gateway {
 				$verify = Braintree_WebhookNotification::verify( $_GET['bt_challenge'] );
 				die( $verify );
 			} catch ( Exception $e ) {
-				rcp_log( 'Exiting Braintree webhook - verification failed.' );
+				rcp_log( 'Exiting Braintree webhook - verification failed.', true );
 
 				wp_die( 'Verification failed' );
 			}
@@ -431,13 +431,13 @@ class RCP_Payment_Gateway_Braintree extends RCP_Payment_Gateway {
 		try {
 			$data = Braintree_WebhookNotification::parse( $_POST['bt_signature'], $_POST['bt_payload'] );
 		} catch ( Exception $e ) {
-			rcp_log( 'Exiting Braintree webhook - invalid signature.' );
+			rcp_log( 'Exiting Braintree webhook - invalid signature.', true );
 
 			die( 'Invalid signature' );
 		}
 
 		if ( empty( $data->kind ) ) {
-			rcp_log( 'Exiting Braintree webhook - invalid webhook.' );
+			rcp_log( 'Exiting Braintree webhook - invalid webhook.', true );
 
 			die( 'Invalid webhook' );
 		}
@@ -467,10 +467,7 @@ class RCP_Payment_Gateway_Braintree extends RCP_Payment_Gateway {
 
 		/**
 		 * As a backup, get the user ID from the subscription ID.
-		 * This will be used for free trial cancellations and
-		 * backwards compatibility with the old Braintree add-on
-		 * where the subscription ID was stored instead of the
-		 * customer ID.
+		 * This will be used for free trial cancellations.
 		 */
 		if ( empty( $user_id ) && ! empty( $data->subscription->id ) ) {
 
@@ -478,8 +475,21 @@ class RCP_Payment_Gateway_Braintree extends RCP_Payment_Gateway {
 
 		}
 
+		/**
+		 * For backwards compatibility with the old Braintree add-on,
+		 * find a user with this subscription ID stored in the meta
+		 * `rcp_recurring_payment_id`.
+		 */
+		if ( empty( $user_id ) && ! empty( $data->subscription->id ) ) {
+
+			global $wpdb;
+
+			$user_id = $wpdb->get_var( $wpdb->prepare( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = 'rcp_recurring_payment_id' AND meta_value = %s LIMIT 1", $data->subscription->id ) );
+
+		}
+
 		if ( empty( $user_id ) ) {
-			rcp_log( 'Exiting Braintree webhook - member ID not found.' );
+			rcp_log( 'Exiting Braintree webhook - member ID not found.', true );
 
 			die( 'no user ID found' );
 		}
@@ -495,7 +505,7 @@ class RCP_Payment_Gateway_Braintree extends RCP_Payment_Gateway {
 		}
 
 		if ( empty( $subscription_id ) ) {
-			rcp_log( 'Exiting Braintree webhook - no subscription ID for member.' );
+			rcp_log( 'Exiting Braintree webhook - no subscription ID for member.', true );
 
 			die( 'no subscription ID for member' );
 		}

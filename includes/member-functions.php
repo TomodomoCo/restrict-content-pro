@@ -83,7 +83,7 @@ function rcp_get_members( $status = 'active', $subscription = null, $offset = 0,
 				'compare' => 'LIKE'
 			);
 		} else {
-			$args['search'] = sanitize_text_field( $search );
+			$args['search'] = sanitize_text_field( '*' . trim( $search ) . '*' );
 		}
 	}
 

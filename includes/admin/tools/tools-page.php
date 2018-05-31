@@ -59,7 +59,8 @@ function rcp_get_tools_tabs() {
 	global $rcp_options;
 
 	$tabs = array(
-		'system_info' => __( 'System Info', 'rcp' )
+		'system_info' => __( 'System Info', 'rcp' ),
+		'debug'       => __( 'Debugging', 'rcp' )
 	);
 
 	if ( ! empty( $rcp_options['debug_mode'] ) ) {

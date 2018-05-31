@@ -102,7 +102,7 @@ function rcp_members_page() {
 			</ul>
 			<form id="rcp-member-search" method="get" action="<?php menu_page_url( 'rcp-members' ); ?>">
 				<label class="screen-reader-text" for="rcp-member-search-input"><?php _e( 'Search Members', 'rcp' ); ?></label>
-				<input type="search" id="rcp-member-search-input" name="s" value="<?php echo esc_attr( $search ); ?>"/>
+				<input type="search" id="rcp-member-search-input" name="s" value="<?php echo isset($_REQUEST['s']) ? esc_attr( wp_unslash( $_REQUEST['s'] ) ) : ''; ?>"/>
 				<input type="hidden" name="page" value="rcp-members"/>
 				<input type="hidden" name="status" value="<?php echo esc_attr( $status ); ?>"/>
 				<input type="submit" name="" id="rcp-member-search-submit" class="button" value="<?php _e( 'Search members', 'rcp' ); ?>"/>
@@ -168,7 +168,17 @@ function rcp_members_page() {
 					<?php
 
 					if( isset( $_GET['signup_method'] ) ) {
-						$method = $_GET['signup_method'] == 'live' ? 'live' : 'manual';
+						switch( $_GET['signup_method'] ) {
+							case 'live':
+								$method = 'live';
+								break;
+							case 'imported':
+								$method = 'imported';
+								break;
+							default:
+								$method = 'manual';
+								break;
+						}
 						$members = get_users( array(
 								'meta_key' => 'rcp_signup_method',
 								'meta_value' => $method,

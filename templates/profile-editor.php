@@ -69,7 +69,6 @@ if ( is_user_logged_in() ):
 				<label for="rcp_user_pass"><?php _e( 'Re-enter Password', 'rcp' ); ?></label>
 				<input name="rcp_new_user_pass2" id="rcp_new_user_pass2" class="password rcp-input" type="password"/>
 			</p>
-			<p class="rcp_password_change_notice"><?php _e( 'Please note after changing your password, you must log back in.', 'rcp' ); ?></p>
         </fieldset>
         <fieldset>
 			<p id="rcp_profile_submit_wrap">

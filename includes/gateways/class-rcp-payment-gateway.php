@@ -233,7 +233,7 @@ class RCP_Payment_Gateway {
 			$this->subscription_data   = $subscription_data;
 			$this->payment             = $rcp_payments_db->get_payment( $subscription_data['payment_id'] );
 
-			rcp_log( sprintf( 'Registration for user #%d sent to gateway. Level ID: %d; Initial Amount: %.2f; Recurring Amount: %.2f; Auto Renew: %s', $this->user_id, $this->subscription_id, $this->initial_amount, $this->amount, var_export( $this->auto_renew, true ) ) );
+			rcp_log( sprintf( 'Registration for user #%d sent to gateway. Level ID: %d; Initial Amount: %.2f; Recurring Amount: %.2f; Auto Renew: %s; Trial: %s', $this->user_id, $this->subscription_id, $this->initial_amount, $this->amount, var_export( $this->auto_renew, true ), var_export( $this->is_trial(), true ) ) );
 
 		}
 

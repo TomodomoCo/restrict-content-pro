@@ -264,7 +264,7 @@ class RCP_Payment_Gateway_PayPal extends RCP_Payment_Gateway {
 			$member = new RCP_Member( $user_id );
 
 			if( ! $member || ! $member->ID > 0 ) {
-				rcp_log( sprintf( 'PayPal IPN Failed: unable to find associated member in RCP. Item Name: %s; Item Number: %d; TXN Type: %s; TXN ID: %s', $posted['item_name'], $posted['item_number'], $posted['txn_type'], $posted['txn_id'] ) );
+				rcp_log( sprintf( 'PayPal IPN Failed: unable to find associated member in RCP. Item Name: %s; Item Number: %d; TXN Type: %s; TXN ID: %s', $posted['item_name'], $posted['item_number'], $posted['txn_type'], $posted['txn_id'] ), true );
 				die( 'no member found' );
 			}
 
@@ -349,7 +349,7 @@ class RCP_Payment_Gateway_PayPal extends RCP_Payment_Gateway {
 				if( ! rcp_is_valid_currency( $currency_code ) ) {
 					// the currency code is invalid
 
-					rcp_log( sprintf( 'The currency code in a PayPal IPN request did not match the site currency code. Provided: %s', $currency_code ) );
+					rcp_log( sprintf( 'The currency code in a PayPal IPN request did not match the site currency code. Provided: %s', $currency_code ), true );
 
 
 					die( 'invalid currency code' );
@@ -428,7 +428,7 @@ class RCP_Payment_Gateway_PayPal extends RCP_Payment_Gateway {
 
 					rcp_log( 'Processing PayPal Standard subscr_cancel IPN.' );
 
-					if( ! $member->just_upgraded() ) {
+					if( isset( $posted['subscr_id'] ) && $posted['subscr_id'] == $member->get_payment_profile_id() && 'cancelled' !== $member->get_status() && ! $member->just_upgraded() ) {
 
 						// user is marked as cancelled but retains access until end of term
 						if ( $member->is_active() ) {
@@ -553,7 +553,7 @@ class RCP_Payment_Gateway_PayPal extends RCP_Payment_Gateway {
 
 		} else {
 
-			rcp_log( 'Invalid PayPal IPN attempt.' );
+			rcp_log( 'Invalid PayPal IPN attempt.', true );
 
 			status_header( 400 );
 			die( 'invalid IPN' );

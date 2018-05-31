@@ -56,7 +56,7 @@ add_action('wp', 'rcp_setup_cron_jobs');
  */
 function rcp_check_for_expired_users() {
 
-	rcp_log( 'Starting rcp_check_for_expired_users() cron job.' );
+	rcp_log( 'Starting rcp_check_for_expired_users() cron job.', true );
 
 	global $wpdb;
 
@@ -109,7 +109,7 @@ add_action( 'rcp_expired_users_check', 'rcp_check_for_expired_users' );
  */
 function rcp_check_for_soon_to_expire_users() {
 
-	rcp_log( 'Starting rcp_check_for_soon_to_expire_users() cron job.' );
+	rcp_log( 'Starting rcp_check_for_soon_to_expire_users() cron job.', true );
 
 	$reminders = new RCP_Reminders();
 	$reminders->send_reminders();
@@ -128,7 +128,7 @@ add_action( 'rcp_send_expiring_soon_notice', 'rcp_check_for_soon_to_expire_users
  */
 function rcp_check_member_counts() {
 
-	rcp_log( 'Starting rcp_check_member_counts() cron job.' );
+	rcp_log( 'Starting rcp_check_member_counts() cron job.', true );
 
 	global $rcp_levels_db;
 	$levels = $rcp_levels_db->get_levels();
@@ -161,7 +161,7 @@ add_action( 'rcp_check_member_counts', 'rcp_check_member_counts' );
  */
 function rcp_mark_abandoned_payments() {
 
-	rcp_log( 'Starting rcp_mark_abandoned_payments() cron job.' );
+	rcp_log( 'Starting rcp_mark_abandoned_payments() cron job.', true );
 
 	/**
 	 * @var RCP_Payments $rcp_payments_db

@@ -322,7 +322,7 @@ class RCP_Emails {
 		do_action( 'rcp_email_send_after', $this );
 
 		if ( false === $sent ) {
-			rcp_log( 'wp_mail() failure in RCP_Emails class.' );
+			rcp_log( 'wp_mail() failure in RCP_Emails class.', true );
 		}
 
 		return $sent;

@@ -199,19 +199,19 @@ class RCP_Payment_Gateway_2Checkout extends RCP_Payment_Gateway {
 			$hash  = strtoupper( md5( $_POST['sale_id'] . $this->seller_id . $_POST['invoice_id'] . $this->secret_word ) );
 
 			if ( ! hash_equals( $hash, $_POST['md5_hash'] ) ) {
-				rcp_log( 'Exiting 2Checkout webhook - invalid MD5 hash.' );
+				rcp_log( 'Exiting 2Checkout webhook - invalid MD5 hash.', true );
 
 				die('-1');
 			}
 
 			if ( empty( $_POST['message_type'] ) ) {
-				rcp_log( 'Exiting 2Checkout webhook - empty message_type.' );
+				rcp_log( 'Exiting 2Checkout webhook - empty message_type.', true );
 
 				die( '-2' );
 			}
 
 			if ( empty( $_POST['vendor_id'] ) ) {
-				rcp_log( 'Exiting 2Checkout webhook - empty vendor_id.' );
+				rcp_log( 'Exiting 2Checkout webhook - empty vendor_id.', true );
 
 				die( '-3' );
 			}
@@ -220,7 +220,7 @@ class RCP_Payment_Gateway_2Checkout extends RCP_Payment_Gateway {
 			$member_id        = $wpdb->get_var( $wpdb->prepare( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = 'rcp_subscription_key' AND meta_value = %s LIMIT 1", $subscription_key ) );
 
 			if ( ! $member_id ) {
-				rcp_log( 'Exiting 2Checkout webhook - member ID not found.' );
+				rcp_log( sprintf( 'Exiting 2Checkout webhook - member ID not found from order ID %s.', $subscription_key ), true );
 
 				die( '-4' );
 			}

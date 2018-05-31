@@ -24,7 +24,10 @@ function rcp_redirect_from_premium_post() {
 			} else {
 				$redirect = home_url();
 			}
-			wp_redirect( $redirect ); exit;
+
+			$redirect = apply_filters( 'rcp_restricted_post_redirect_url', $redirect, $member, $post );
+
+			wp_redirect( esc_url_raw( $redirect ) ); exit;
 		} elseif( is_post_type_archive() && $wp_query->have_posts() && rcp_is_restricted_post_type( get_post_type() ) && ! $member->can_access( get_the_ID() ) ) {
 			if( isset( $rcp_options['redirect_from_premium'] ) ) {
 				$redirect = get_permalink( $rcp_options['redirect_from_premium'] );
@@ -33,8 +36,10 @@ function rcp_redirect_from_premium_post() {
 				$redirect = ! is_front_page() ? home_url() : false;
 			}
 
+			$redirect = apply_filters( 'rcp_restricted_post_redirect_url', $redirect, $member, $post );
+
 			if ( $redirect ) {
-				wp_redirect( $redirect ); exit;
+				wp_redirect( esc_url_raw( $redirect ) ); exit;
 			}
 		}
 	}

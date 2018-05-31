@@ -320,10 +320,6 @@ class RCP_Member_Tests extends WP_UnitTestCase {
 
 		$this->assertTrue( $this->member->can_access( $this->post_id ) );
 
-		$this->member->set_status( 'free' );
-
-		$this->assertFalse( $this->member->can_access( $this->post_id ) );
-
 		$this->member->set_status( 'active' );
 
 		update_post_meta( $this->post_id, 'rcp_subscription_level', array( $this->level_id ) );
@@ -452,7 +448,7 @@ class RCP_Member_Tests extends WP_UnitTestCase {
 		$this->member->set_status( 'free' );
 		update_post_meta( $this->post_id, '_is_paid', true );
 		update_user_meta( $this->member->ID, 'rcp_subscription_level', $this->level_id );
-		update_post_meta( $this->post_id, 'rcp_subscription_level', array( $this->level_id, $this->level_id_2 ) );
+		update_post_meta( $this->post_id, 'rcp_subscription_level', array( $this->free_level, $this->level_id_2 ) );
 
 		$this->assertFalse( $this->member->can_access( $this->post_id ) );
 

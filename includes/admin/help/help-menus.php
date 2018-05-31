@@ -147,7 +147,7 @@ function rcp_render_discounts_tab_content( $id ) {
 			<p><?php _e( 'Discount codes all you to give special offers to new registrations, giving extra incentive for users to sign up for your website\'s premium content section. Restrict Content Pro\'s discount codes work just like any other. There are two kinds:', 'rcp' ); ?></p>
 			<ul>
 				<li><?php _e( 'Flat - a flat dollar amount discount. This will take the specified number of dollars (or whatever your currency is) off of the base subscription price.', 'rcp' ); ?></li>
-				<li><?php _e( 'Percentage - a discount based on a percentage amount. So if your subscription is $10, and your discount is 10%, the registration price will be $9.', 'rcp' ); ?></li>
+				<li><?php printf( __( 'Percentage - a discount based on a percentage amount. So if your subscription is %1$s, and your discount is 10%, the registration price will be %2$s.', 'rcp' ), rcp_currency_filter( 10 ), rcp_currency_filter( 9 ) ); ?></li>
 			</ul>
 			<?php
 			break;

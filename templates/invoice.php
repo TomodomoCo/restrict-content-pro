@@ -347,9 +347,11 @@ global $rcp_options, $rcp_payment, $rcp_member; ?>
 			<div class="alignleft">
 				<header><?php _e( 'Additional Info:', 'rcp' ); ?></header>
 
-				<article>
-					<p><?php echo __( 'Payment Date:', 'rcp' ) . ' ' . date_i18n( get_option( 'date_format' ), strtotime( $rcp_payment->date, current_time( 'timestamp' ) ) ); ?></p>
-				</article>
+				<?php if ( in_array( $rcp_payment->status, array( 'complete', 'refunded' ) ) ) : ?>
+					<article>
+						<p><?php echo __( 'Payment Date:', 'rcp' ) . ' ' . date_i18n( get_option( 'date_format' ), strtotime( $rcp_payment->date, current_time( 'timestamp' ) ) ); ?></p>
+					</article>
+				<?php endif; ?>
 
 				<?php if( ! empty( $rcp_options['invoice_notes'] ) ) : ?>
 					<article>

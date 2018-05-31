@@ -305,33 +305,3 @@ function rcp_discount_sign_filter( $amount, $type ) {
 	return $discount;
 }
 
-/**
- * Check PayPal return price after applying discount.
- *
- * @param float $price
- * @param float $amount
- * @param float $amount2
- * @param int $user_id
- *
- * @return bool
- */
-function rcp_check_paypal_return_price_after_discount( $price, $amount, $amount2, $user_id ) {
-	// get an array of all discount codes this user has used
-	$user_discounts = get_user_meta( $user_id, 'rcp_user_discounts', true );
-	if( !is_array( $user_discounts ) || $user_discounts == '' ) {
-		// this user has never used a discount code
-		return false;
-	}
-	foreach( $user_discounts as $discount_code ) {
-		if( !rcp_validate_discount( $discount_code ) ) {
-			// discount code is inactive
-			return false;
-		}
-		$code_details = rcp_get_discount_details_by_code( $discount_code );
-		$discounted_price = rcp_get_discounted_price( $price, $code_details->amount, $code_details->unit );
-		if( $discounted_price == $amount || $discounted_price == $amount2 ) {
-			return true;
-		}
-	}
-	return false;
-}

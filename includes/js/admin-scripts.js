@@ -94,7 +94,7 @@ jQuery(document).ready(function($) {
 	//when the history state changes, gets the url from the hash and display
 	$(window).bind( 'hashchange', function(e) {
 
-		if ( ! window.adminpage || ( window.adminpage && 'restrict_page_rcp-settings' !== window.adminpage ) ) {
+		if ( $('#rcp-settings-wrap').length == 0) {
 			return;
 		}
 
@@ -356,4 +356,77 @@ jQuery(document).ready(function($) {
 		}
 	});
 
+	// Changes the currency symbol in the Currency Position dropdown to match the Currency setting.
+	var currencySelect = $('#rcp_settings\\[currency\\]');
+	if (currencySelect.length) {
+		var currencies = JSON.parse(rcp_vars.currencies);
+		var currentSymbol = currencies[currencySelect.val()].match(/\(([^)]+)\)/)[1];
+		var currencyPositionBefore = $('#rcp_settings\\[currency_position\\] option[value="before"]');
+		var currencyPositionAfter = $('#rcp_settings\\[currency_position\\] option[value="after"]');
+
+		currencyPositionBefore.text(function () {
+			return $(this).text().replace("$", currentSymbol);
+		});
+
+		currencyPositionAfter.text(function () {
+			return $(this).text().replace("$", currentSymbol);
+		});
+
+		$(currencySelect).on('change', function () {
+			var newCurrency = currencies[$(this).val()].match(/\(([^)]+)\)/)[1];
+
+			currencyPositionBefore.text(function () {
+				return $(this).text().replace(currentSymbol, newCurrency);
+			});
+			currencyPositionAfter.text(function () {
+				return $(this).text().replace(currentSymbol, newCurrency);
+			});
+
+			currentSymbol = newCurrency;
+		});
+	}
+
+	if( window.adminpage === 'restrict_page_rcp-settings' ) {
+		RCP_Settings.init();
+	}
 });
+
+let RCP_Settings = {
+
+	init: function() {
+		this.listeners();
+	},
+
+	listeners: function() {
+		let sandboxCheckbox = document.getElementById( 'rcp_settings[sandbox]' );
+
+		if( ! sandboxCheckbox ) {
+			return;
+		}
+
+		sandboxCheckbox.addEventListener( 'change', function() {
+			let testpub = document.getElementById( 'rcp_settings[stripe_test_publishable]' );
+			let livepub = document.getElementById( 'rcp_settings[stripe_live_publishable]' );
+			let notice = document.getElementById( 'rcp-sandbox-toggle-notice' );
+
+			if( this.checked && testpub.value === '' ) {
+				RCP_Settings.showErrorNotice( notice );
+			}
+
+			if( ! this.checked && livepub.value === '' ) {
+				RCP_Settings.showErrorNotice( notice );
+			}
+		} );
+	},
+
+	showErrorNotice: function( element = false ) {
+		if( ! element ) {
+			return;
+		}
+
+		element.className = 'notice error';
+		element.style.visibility = 'visible';
+	}
+}
+
+

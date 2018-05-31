@@ -137,7 +137,7 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 
 				}
 
-				$member->set_payment_profile_id( $customer->id );
+				$customer_id = $customer->id;
 
 			} catch ( Exception $e ) {
 
@@ -151,7 +151,10 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 		$cancelled_subscriptions = array();
 
 		// clean up any past due or unpaid subscriptions before upgrading/downgrading
-		foreach( $customer->subscriptions->all()->data as $subscription ) {
+		$subscriptions = $customer->subscriptions->all( array(
+			'expand' => array( 'data.plan.product' )
+		) );
+		foreach( $subscriptions->data as $subscription ) {
 
 			// Cancel subscriptions with the RCP metadata present and matching member ID.
 			// @todo When we add multiple subscriptions we need to update this to only cancel subscriptions where $this->subscription_id matches the rcp_subscription_level_id in the metadata.
@@ -167,14 +170,14 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 			 * RCP subscription level database. If the Stripe plan name matches a sub level name then we cancel it.
 			 * @todo When we add multiple subscriptions we need to update this to only cancel if the plan name != $member->get_pending_subscription_name()
 			 */
-			if ( ! empty( $subscription->plan->name ) ) {
+			if ( ! empty( $subscription->plan->product->name ) ) {
 
 				/**
 				 * @var RCP_Levels $rcp_levels_db
 				 */
 				global $rcp_levels_db;
 
-				$level = $rcp_levels_db->get_level_by( 'name', $subscription->plan->name );
+				$level = $rcp_levels_db->get_level_by( 'name', $subscription->plan->product->name );
 
 				// Cancel if this plan name matches an RCP subscription level.
 				if ( ! empty( $level ) ) {
@@ -190,6 +193,12 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 		if( $member->just_upgraded() && $member->can_cancel() && ! in_array( $member->get_merchant_subscription_id(), $cancelled_subscriptions ) ) {
 			$cancelled = $member->cancel_payment_profile( false );
 		}
+
+		/*
+		 * Set Stripe customer ID as payment profile ID. We can safely do this now that we've cancelled any existing
+		 * subscriptions. See https://github.com/restrictcontentpro/restrict-content-pro/issues/1719
+		 */
+		$member->set_payment_profile_id( $customer_id );
 
 		// Now save card details. This has to be done after the above cancellations. See https://github.com/restrictcontentpro/restrict-content-pro/issues/1570
 		$customer->source = $_POST['stripeToken'];
@@ -259,7 +268,17 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 				}
 
 				// Set the customer's subscription in Stripe
-				$subscription = $customer->subscriptions->create( apply_filters( 'rcp_stripe_create_subscription_args', $sub_args, $this ) );
+				$sub_args = apply_filters( 'rcp_stripe_create_subscription_args', $sub_args, $this );
+
+				$sub_options = array();
+
+				$stripe_connect_user_id = get_option( 'rcp_stripe_connect_account_id', false );
+
+				if( ! empty( $stripe_connect_user_id ) ) {
+					$sub_options['stripe_account'] = $stripe_connect_user_id;
+				}
+
+				$subscription = $customer->subscriptions->create( $sub_args, $sub_options );
 
 				$member->set_merchant_subscription_id( $subscription->id );
 
@@ -351,7 +370,7 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 
 			try {
 
-				$charge = \Stripe\Charge::create( apply_filters( 'rcp_stripe_charge_create_args', array(
+				$charge_args = apply_filters( 'rcp_stripe_charge_create_args', array(
 					'amount'         => round( ( $this->initial_amount ) * rcp_stripe_get_currency_multiplier(), 0 ), // amount in cents
 					'currency'       => strtolower( $this->currency ),
 					'customer'       => $customer->id,
@@ -363,7 +382,17 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 						'level'      => $this->subscription_name,
 						'key'        => $this->subscription_key
 					)
-				), $this ) );
+				), $this );
+
+				$charge_options = array();
+
+				$stripe_connect_user_id = get_option( 'rcp_stripe_connect_account_id', false );
+
+				if( ! empty( $stripe_connect_user_id ) ) {
+					$charge_options['stripe_account'] = $stripe_connect_user_id;
+				}
+
+				$charge = \Stripe\Charge::create( $charge_args, $charge_options );
 
 				// Complete pending payment. This also updates the expiration date, status, etc.
 				$rcp_payments_db->update( $this->payment->id, array(
@@ -561,7 +590,7 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 				}
 
 				if( empty( $user ) ) {
-					rcp_log( 'Exiting Stripe webhook - member ID not found.' );
+					rcp_log( sprintf( 'Exiting Stripe webhook - member ID not found. Customer ID: %s.', $payment_event->customer ), true );
 
 					die( 'no user ID found' );
 				}
@@ -576,7 +605,7 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 				    $subscription_level_id = $member->get_subscription_id();
 
 					if( ! $subscription_level_id ) {
-						rcp_log( 'Exiting Stripe webhook - no subscription ID for member.' );
+						rcp_log( 'Exiting Stripe webhook - no subscription ID for member.', true );
 
 						die( 'no subscription ID for member' );
 					}
@@ -702,7 +731,7 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 						if ( ! empty( $event->data->object->subscription ) && $event->data->object->subscription == $member->get_merchant_subscription_id() ) {
 							do_action( 'rcp_recurring_payment_failed', $member, $this );
 						} else {
-							rcp_log( sprintf( 'Stripe subscription ID %s doesn\'t match user\'s merchant subscription ID %s. Skipping rcp_recurring_payment_failed hook.', $event->data->object->subscription, $member->get_merchant_subscription_id() ) );
+							rcp_log( sprintf( 'Stripe subscription ID %s doesn\'t match user\'s merchant subscription ID %s. Skipping rcp_recurring_payment_failed hook.', $event->data->object->subscription, $member->get_merchant_subscription_id() ), true );
 						}
 
 						do_action( 'rcp_stripe_charge_failed', $payment_event, $event, $member );
@@ -736,7 +765,7 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 							die( 'member cancelled successfully' );
 
 						} else {
-							rcp_log( sprintf( 'Payment event ID (%s) doesn\'t match member\'s merchant subscription ID (%s).', $payment_event->id, $member->get_merchant_subscription_id() ) );
+							rcp_log( sprintf( 'Payment event ID (%s) doesn\'t match member\'s merchant subscription ID (%s).', $payment_event->id, $member->get_merchant_subscription_id() ), true );
 						}
 
 					}
@@ -744,13 +773,13 @@ class RCP_Payment_Gateway_Stripe extends RCP_Payment_Gateway {
 					do_action( 'rcp_stripe_' . $event->type, $payment_event, $event );
 
 				} else {
-					rcp_log( 'Exiting Stripe webhook - member not found.' );
+					rcp_log( 'Exiting Stripe webhook - member not found.', true );
 				}
 
 
 			} catch ( Exception $e ) {
 				// something failed
-				rcp_log( sprintf( 'Exiting Stripe webhook due to PHP exception: %s.', $e->getMessage() ) );
+				rcp_log( sprintf( 'Exiting Stripe webhook due to PHP exception: %s.', $e->getMessage() ), true );
 
 				die( 'PHP exception: ' . $e->getMessage() );
 			}

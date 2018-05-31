@@ -168,7 +168,7 @@ function rcp_tools_system_info_report() {
 	$levels = rcp_get_subscription_levels();
 	if ( ! empty( $levels ) ) {
 		foreach ( $levels as $level ) {
-			$return .= str_pad( $level->name . ':', 40 ) . sprintf( '%s; Price: %s; Duration: %s %s; Trial: %s %s', $level->status, $level->price, $level->duration, $level->duration_unit, $level->trial_duration, $level->trial_duration_unit ) . "\n";
+			$return .= str_pad( $level->name . ':', 40 ) . sprintf( '%s; ID: %d; Price: %s; Fee: %s; Duration: %s %s; Trial: %s %s', $level->status, $level->id, $level->price, $level->fee, $level->duration, $level->duration_unit, $level->trial_duration, $level->trial_duration_unit ) . "\n";
 		}
 	}
 
@@ -258,7 +258,7 @@ function rcp_tools_system_info_report() {
 	// Must-use plugins
 	// NOTE: MU plugins can't show updates!
 	$muplugins = get_mu_plugins();
-	if( count( $muplugins > 0 ) ) {
+	if( count( $muplugins ) > 0 ) {
 		$return .= "\n" . '-- Must-Use Plugins' . "\n\n";
 
 		foreach( $muplugins as $plugin => $plugin_data ) {

@@ -171,7 +171,7 @@ class RCP_Payments {
 			return $payment_id;
 
 		} else {
-			rcp_log( 'Failed inserting new payment into database.' );
+			rcp_log( 'Failed inserting new payment into database.', true );
 		}
 
 		return false;
