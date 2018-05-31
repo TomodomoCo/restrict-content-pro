@@ -46,7 +46,7 @@ function rcp_process_add_discount() {
 	$add = $discounts->insert( $data );
 
 	if ( is_wp_error( $add ) ) {
-		rcp_log( sprintf( 'Error creating new discount code: %s', $add->get_error_message() ) );
+		rcp_log( sprintf( 'Error creating new discount code: %s', $add->get_error_message() ), true );
 		wp_die( $add );
 	}
 
@@ -54,7 +54,7 @@ function rcp_process_add_discount() {
 		rcp_log( sprintf( 'Successfully added discount #%d.', $add ) );
 		$url = admin_url( 'admin.php?page=rcp-discounts&rcp_message=discount_added' );
 	} else {
-		rcp_log( 'Error inserting new discount code into the database.' );
+		rcp_log( 'Error inserting new discount code into the database.', true );
 		$url = admin_url( 'admin.php?page=rcp-discounts&rcp_message=discount_not_added' );
 	}
 
@@ -98,7 +98,7 @@ function rcp_process_edit_discount() {
 	$update = $discounts->update( $_POST['discount_id'], $data );
 
 	if ( is_wp_error( $update ) ) {
-		rcp_log( sprintf( 'Error editing discount code #%d: %s', $_POST['discount_id'], $update->get_error_message() ) );
+		rcp_log( sprintf( 'Error editing discount code #%d: %s', $_POST['discount_id'], $update->get_error_message() ), true );
 
 		wp_die( $update );
 	}
@@ -107,7 +107,7 @@ function rcp_process_edit_discount() {
 		rcp_log( sprintf( 'Successfully edited discount #%d.', $_POST['discount_id'] ) );
 		$url = admin_url( 'admin.php?page=rcp-discounts&discount-updated=1' );
 	} else {
-		rcp_log( sprintf( 'Error editing discount #%d.', $_POST['discount_id'] ) );
+		rcp_log( sprintf( 'Error editing discount #%d.', $_POST['discount_id'] ), true );
 		$url = admin_url( 'admin.php?page=rcp-discounts&discount-updated=0' );
 	}
 

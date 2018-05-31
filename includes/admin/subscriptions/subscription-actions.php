@@ -29,7 +29,7 @@ function rcp_process_add_subscription_level() {
 	}
 
 	if ( empty( $_POST['name'] ) ) {
-		rcp_log( 'Failed creating new subscription level: empty subscription name.' );
+		rcp_log( 'Failed creating new subscription level: empty subscription name.', true );
 		$url = admin_url( 'admin.php?page=rcp-member-levels&rcp_message=level_missing_fields' );
 		wp_safe_redirect( esc_url_raw( $url ) );
 		exit;

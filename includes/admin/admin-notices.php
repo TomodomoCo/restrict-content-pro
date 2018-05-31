@@ -49,6 +49,12 @@ function rcp_admin_notices() {
 			echo '<p><a href="' . wp_nonce_url( add_query_arg( array( 'rcp_notice' => 'missing_license' ) ), 'rcp_dismiss_notice', 'rcp_dismiss_notice_nonce' ) . '">' . _x( 'Dismiss Notice', 'License', 'rcp' ) . '</a></p>';
 			echo '</div>';
 		}
+
+		$stripe_user_id = get_option( 'rcp_stripe_connect_account_id' );
+		$enabled_gateways = rcp_get_enabled_payment_gateways();
+		if( empty( $stripe_user_id ) && ( array_key_exists( 'stripe', $enabled_gateways ) || array_key_exists( 'stripe_checkout', $enabled_gateways ) ) ) {
+			echo '<div class="notice notice-info"><p>' . sprintf( __( 'Restrict Content Pro now supports Stripe Connect for easier setup and improved security. <a href="%s">Click here</a> to learn more about connecting your Stripe account.', 'rcp' ), esc_url( admin_url( 'admin.php?page=rcp-settings#payments' ) ) ) . '</p></div>';
+		}
 	}
 
 	if( current_user_can( 'activate_plugins' ) ) {

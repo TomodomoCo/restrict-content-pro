@@ -120,9 +120,9 @@ function rcp_restricted_message_pending_verification( $message ) {
 
 	global $rcp_load_css;
 
-	$rcp_load_css = true;
-
 	if( rcp_is_pending_verification() ) {
+		$rcp_load_css = true;
+
 		$message = '<div class="rcp_message error"><p class="rcp_error rcp_pending_member"><span>' . __( 'Your account is pending email verification.', 'rcp' ) . '</span></p></div>';
 	}
 
@@ -142,7 +142,7 @@ add_filter( 'rcp_restricted_message', 'rcp_restricted_message_pending_verificati
  * @return bool
  */
 function rcp_post_password_required_rest_api( $required, $post ) {
-	if( DEFINED( 'REST_REQUEST' ) && REST_REQUEST && rcp_is_restricted_content( $post->ID ) ) {
+	if( DEFINED( 'REST_REQUEST' ) && REST_REQUEST && rcp_is_restricted_content( $post->ID ) && ! rcp_user_can_access( get_current_user_id(), $post->ID ) ) {
 		$required = true;
 	}
 

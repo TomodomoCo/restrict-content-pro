@@ -754,7 +754,7 @@ class RCP_Member extends WP_User {
 		if( $success ) {
 			rcp_log( sprintf( 'Payment profile successfully cancelled for member #%d.', $this->ID ) );
 		} else {
-			rcp_log( sprintf( 'Failed cancelling payment profile for member #%d.', $this->ID ) );
+			rcp_log( sprintf( 'Failed cancelling payment profile for member #%d.', $this->ID ), true );
 		}
 
 		return $success;
@@ -1306,31 +1306,8 @@ class RCP_Member extends WP_User {
 
 			} else {
 
-				if ( in_array( $sub_id, $subscription_levels ) ) {
+				$ret = in_array( $sub_id, $subscription_levels );
 
-					$needs_paid = false;
-
-					foreach( $subscription_levels as $level ) {
-						$price = rcp_get_subscription_price( $level );
-						if ( ! empty( $price ) && $price > 0 ) {
-							$needs_paid = true;
-						}
-					}
-
-					if ( $needs_paid ) {
-
-						$ret = $this->is_active();
-
-					} else {
-
-						$ret = true;
-					}
-
-				} else {
-
-					$ret = false;
-
-				}
 			}
 		}
 

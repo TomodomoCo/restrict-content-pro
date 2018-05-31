@@ -332,13 +332,23 @@ function rcp_register_form_stripe_checkout( $atts ) {
 
 	$data = apply_filters( 'rcp_stripe_checkout_data', $data );
 
+	global $rcp_load_css;
+
+	// set this to true so the CSS is loaded. Used for styling error messages.
+	$rcp_load_css = true;
+	rcp_show_error_messages( 'register' );
+
 	ob_start();
 
 	if( $member->ID > 0 && $member->get_subscription_id() == $subscription->id && $member->is_active() ) : ?>
 
 		<div class="rcp-stripe-checkout-notice"><?php _e( 'You are already subscribed.', 'rcp' ); ?></div>
 
-	<?php else : ?>
+	<?php else :
+		if( ! has_action( 'wp_footer', 'rcp_stripe_checkout_shortcode_scripts' ) ) {
+			add_action( 'wp_footer', 'rcp_stripe_checkout_shortcode_scripts' );
+		}
+		?>
 		<form action="" method="post">
 			<?php do_action( 'register_form_stripe_fields', $data ); ?>
 			<script src="https://checkout.stripe.com/checkout.js" class="stripe-button" <?php foreach( $data as $label => $value ) { printf( ' %s="%s" ', esc_attr( $label ), esc_attr( $value ) ); } ?> ></script>
@@ -395,12 +405,10 @@ add_shortcode( 'login_form', 'rcp_login_form' );
 function rcp_reset_password_form() {
 	if( is_user_logged_in() ) {
 
-		global $rcp_options, $rcp_load_css, $rcp_load_scripts;
-		// set this to true so the CSS is loaded
+		global $rcp_load_css, $rcp_load_scripts;
+		// Load CSS and scripts.
 		$rcp_load_css = true;
-		if( isset( $rcp_options['front_end_validate'] ) ) {
-			$rcp_load_scripts = true;
-		}
+		$rcp_load_scripts = true;
 
 		// get the password reset form fields
 		$output = rcp_change_password_form();
@@ -613,3 +621,57 @@ function rcp_user_expiration_shortcode() {
 	return rcp_get_expiration_date();
 }
 add_shortcode( 'user_expiration', 'rcp_user_expiration_shortcode' );
+
+/**
+ * Loads the scripts for the Stripe Checkout shortcode.
+ * Hooked into wp_footer via rcp_register_form_stripe_checkout().
+ *
+ * @since 2.9.11
+ */
+function rcp_stripe_checkout_shortcode_scripts() {
+
+	wp_print_scripts( 'jquery-blockui' );
+	?>
+
+	<script>
+		let $ = jQuery;
+
+		let stripeCheckoutHelper = {
+			init: function() {
+				let stripeCheckoutButton = document.querySelectorAll( '.stripe-button-el' );
+
+				if( ! stripeCheckoutButton ) {
+					return;
+				}
+
+				stripeCheckoutButton.forEach( function( element ) {
+					element.addEventListener( 'click', function( event ) {
+						event.preventDefault();
+						$.blockUI({
+							message: '<?php _e( 'Please wait . . . ', 'rcp' ); ?>',
+							css: {
+								border: 'none',
+								padding: '15px',
+								backgroundColor: '#000',
+								opacity: 0.75,
+								color: '#fff'
+							}
+						} );
+					} );
+				} );
+			}
+		};
+
+		$( document ).ready( function() {
+			stripeCheckoutHelper.init();
+			$( document ).on( 'DOMNodeRemoved', '.stripe_checkout_app', function() {
+				let stripeTokenElement = document.getElementsByName( 'stripeToken' );
+				if( ! stripeTokenElement || stripeTokenElement.length === 0 ) {
+					$( 'body' ).unblock( { fadeOut: 0 } );
+				}
+			} );
+		} );
+
+	</script>
+	<?php
+}

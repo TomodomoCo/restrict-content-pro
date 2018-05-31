@@ -59,7 +59,7 @@ function rcp_process_add_payment() {
 
 		$url = admin_url( 'admin.php?page=rcp-payments&rcp_message=payment_added' );
 	} else {
-		rcp_log( sprintf( 'Failed adding new manual payment by %s: supplied user login doesn\'t exist.', $current_user->user_login ) );
+		rcp_log( sprintf( 'Failed adding new manual payment by %s: supplied user login doesn\'t exist.', $current_user->user_login ), true );
 		$url = admin_url( 'admin.php?page=rcp-payments&rcp_message=payment_not_added' );
 	}
 
