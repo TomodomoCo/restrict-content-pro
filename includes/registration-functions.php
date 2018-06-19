@@ -342,6 +342,9 @@ function rcp_process_registration() {
 
 	// process a free or trial subscription
 	} else {
+		
+		// Delete merchant subscription ID - there isn't one for free levels.
+		$member->set_merchant_subscription_id( '' );
 
 		// Cancel existing subscription.
 		if ( $member->can_cancel() ) {
