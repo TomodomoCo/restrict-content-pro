@@ -197,7 +197,7 @@ function rcp_tools_system_info_report() {
 
 	// RCP Email Settings
 	$return .= "\n" . '-- RCP Email Settings' . "\n\n";
-	$return .= 'RCP_DISABLE_EMAILS constant:      ' . sprintf( 'Status: %s', ( defined( 'RCP_DISABLE_EMAILS' ) ) ? ( RCP_DISABLE_EMAILS ? 'True' : 'False' ) : 'Not Set' ) . "\n";
+	$return .= 'RCP_DISABLE_EMAILS Constant:      ' . sprintf( 'Status: %s', ( defined( 'RCP_DISABLE_EMAILS' ) ) ? ( RCP_DISABLE_EMAILS ? 'True' : 'False' ) : 'Not Set' ) . "\n";
 	$return .= 'Email Verification:               ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ucwords( $rcp_options['email_verification'] ), ( ! empty( $rcp_options['verification_subject'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['verification_email'] ) ? 'Set' : 'Not Set' ) ) . "\n";
 	$return .= 'Active Subscription (member):     ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_active_email'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['active_subject'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['active_email'] ) ? 'Set' : 'Not Set' ) ) . "\n";
 	$return .= 'Active Subscription (admin):      ' . sprintf( 'Status: %s; Subject: %s; Body: %s', ( ! empty( $rcp_options['disable_active_email_admin'] ) ? 'Disabled' : 'Enabled' ), ( ! empty( $rcp_options['active_subject_admin'] ) ? 'Set' : 'Not Set' ), ( ! empty( $rcp_options['active_email_admin'] ) ? 'Set' : 'Not Set' ) ) . "\n";
