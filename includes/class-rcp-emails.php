@@ -292,6 +292,10 @@ class RCP_Emails {
 	 */
 	public function send( $to, $subject, $message, $attachments = '' ) {
 
+		if ( defined( 'RCP_DISABLE_EMAILS' ) && RCP_DISABLE_EMAILS ) {
+			return true;
+		}
+
 		if ( ! did_action( 'init' ) && ! did_action( 'admin_init' ) ) {
 			_doing_it_wrong( __FUNCTION__, __( 'You cannot send emails with rcp_Emails until init/admin_init has been reached', 'rcp' ), null );
 			return false;
