@@ -314,7 +314,7 @@ class RCP_Levels {
 					`trial_duration_unit` = '%s',
 					`price`               = '%s',
 					`fee`                 = '%s',
-					`list_order`          = '0',
+					`list_order`          = '%d',
 					`level`               = '%d',
 					`status`              = '%s',
 					`role`                = '%s'
@@ -327,6 +327,7 @@ class RCP_Levels {
 				in_array( $args['trial_duration_unit'], array( 'day', 'month', 'year' ) ) ? $args['trial_duration_unit'] : 'day',
 				sanitize_text_field( $args['price'] ),
 				sanitize_text_field( $args['fee'] ),
+				absint( $args['list_order'] ),
 				absint( $args['level'] ),
 				sanitize_text_field( $args['status'] ),
 				sanitize_text_field( $args['role'] )
@@ -435,6 +436,7 @@ class RCP_Levels {
 					`trial_duration_unit` = '%s',
 					`price`               = '%s',
 					`fee`                 = '%s',
+					`list_order`          = '%d',
 					`level`               = '%d',
 					`status`              = '%s',
 					`role`                = '%s'
@@ -448,6 +450,7 @@ class RCP_Levels {
 				in_array( $args['trial_duration_unit'], array( 'day', 'month', 'year' ) ) ? $args['trial_duration_unit'] : 'day',
 				sanitize_text_field( $args['price'] ),
 				sanitize_text_field( $args['fee'] ),
+				absint( $args['list_order'] ),
 				absint( $args['level'] ),
 				sanitize_text_field( $args['status'] ),
 				sanitize_text_field( $args['role'] ),
