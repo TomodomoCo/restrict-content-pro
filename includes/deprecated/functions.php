@@ -646,3 +646,19 @@ function rcp_check_paypal_return_price_after_discount( $price, $amount, $amount2
 	}
 	return false;
 }
+
+/**
+ * The default length for excerpts.
+ *
+ * @deprecated 2.9.14
+ *
+ * @param int $excerpt_length Number of words to show in the excerpt.
+ *
+ * @access private
+ * @return string
+ */
+function rcp_excerpt_length( $excerpt_length ) {
+	// the number of words to show in the excerpt
+	return 100;
+}
+//add_filter( 'rcp_filter_excerpt_length', 'rcp_excerpt_length' );

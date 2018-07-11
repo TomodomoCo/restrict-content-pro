@@ -83,13 +83,10 @@ function rcp_format_teaser( $message ) {
 	$show_excerpt = isset( $rcp_options['content_excerpts'] ) ? $rcp_options['content_excerpts'] : 'individual';
 
 	if ( 'always' == $show_excerpt || ( 'individual' == $show_excerpt && get_post_meta( $post->ID, 'rcp_show_excerpt', true ) ) ) {
-		$excerpt_length = 50;
-		if ( has_filter( 'rcp_filter_excerpt_length' ) ) {
-			$excerpt_length = apply_filters( 'rcp_filter_excerpt_length', $excerpt_length );
-		}
-		$excerpt = rcp_excerpt_by_id( $post, $excerpt_length );
-		$message = apply_filters( 'rcp_restricted_message', $message );
-		$message = $excerpt . $message;
+		$excerpt_length = apply_filters( 'rcp_filter_excerpt_length', 100 );
+		$excerpt        = rcp_excerpt_by_id( $post, $excerpt_length );
+		$message        = apply_filters( 'rcp_restricted_message', $message );
+		$message        = $excerpt . $message;
 	} else {
 		$message = apply_filters( 'rcp_restricted_message', $message );
 	}

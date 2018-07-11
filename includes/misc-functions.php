@@ -272,21 +272,6 @@ function rcp_excerpt_by_id( $post, $length = 50, $tags = '<a><em><strong><blockq
 
 
 /**
- * The default length for excerpts.
- *
- * @param int $excerpt_length Number of words to show in the excerpt.
- *
- * @access private
- * @return string
- */
-function rcp_excerpt_length( $excerpt_length ) {
-	// the number of words to show in the excerpt
-	return 100;
-}
-add_filter( 'rcp_filter_excerpt_length', 'rcp_excerpt_length' );
-
-
-/**
  * Get current URL.
  *
  * Returns the URL to the current page, including detection for https.
