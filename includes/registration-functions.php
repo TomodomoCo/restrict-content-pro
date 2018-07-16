@@ -500,6 +500,10 @@ function rcp_validate_user_data() {
  */
 function rcp_get_return_url( $user_id = 0 ) {
 
+	if ( empty( $user_id ) ) {
+		$user_id = get_current_user_id();
+	}
+
 	global $rcp_options;
 
 	if( isset( $rcp_options['redirect'] ) ) {
