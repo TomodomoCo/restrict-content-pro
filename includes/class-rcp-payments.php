@@ -806,7 +806,8 @@ class RCP_Payments {
 
 		// payments for a specific subscription level
 		if( ! empty( $args['subscription'] ) ) {
-			$where .= $wpdb->prepare( " AND `subscription` = %s ", $args['subscription'] );
+			$where   .= " AND `subscription` = %s ";
+			$values[] = $args['subscription'];
 		}
 
 		// payments for specific users
@@ -824,22 +825,44 @@ class RCP_Payments {
 		// Setup the date query
 		if( ! empty( $args['date'] ) && is_array( $args['date'] ) ) {
 
-			$day   = ! empty( $args['date']['day'] )   ? absint( $args['date']['day'] )   : null;
-			$month = ! empty( $args['date']['month'] ) ? absint( $args['date']['month'] ) : null;
-			$year  = ! empty( $args['date']['year'] )  ? absint( $args['date']['year'] )  : null;
-			$date_where = '';
+			if ( ! empty( $args['date']['start'] ) || ! empty( $args['date']['end'] ) ) {
 
-			$date_where .= ! is_null( $year )  ? $year . " = YEAR ( date ) " : '';
+				if ( ! empty( $args['date']['start'] ) ) {
 
-			if( ! is_null( $month ) ) {
-				$date_where = $month  . " = MONTH ( date ) AND " . $date_where;
+					$start    = date( 'Y-m-d 00:00:00', strtotime( $args['date']['start'] ) );
+					$where   .= " AND `date` >= %s";
+					$values[] = $start;
+
+				}
+
+				if ( ! empty( $args['date']['end'] ) ) {
+
+					$end    = date( 'Y-m-d 23:59:59', strtotime( $args['date']['end'] ) );
+					$where   .= " AND `date` <= %s";
+					$values[] = $end;
+
+				}
+
+			} else {
+
+				$day        = ! empty( $args['date']['day'] ) ? absint( $args['date']['day'] ) : null;
+				$month      = ! empty( $args['date']['month'] ) ? absint( $args['date']['month'] ) : null;
+				$year       = ! empty( $args['date']['year'] ) ? absint( $args['date']['year'] ) : null;
+				$date_where = '';
+
+				$date_where .= ! is_null( $year ) ? $year . " = YEAR ( date ) " : '';
+
+				if ( ! is_null( $month ) ) {
+					$date_where = $month . " = MONTH ( date ) AND " . $date_where;
+				}
+
+				if ( ! is_null( $day ) ) {
+					$date_where = $day . " = DAY ( date ) AND " . $date_where;
+				}
+
+				$where .= " AND (" . $date_where . ")";
+
 			}
-
-			if( ! is_null( $day ) ) {
-				$date_where = $day . " = DAY ( date ) AND " . $date_where;
-			}
-
-			$where .= " AND (" . $date_where . ") ";
 		}
 
 		// Exclude refunded payments
@@ -848,7 +871,14 @@ class RCP_Payments {
 		$earnings = get_transient( $cache_key );
 
 		if( $earnings === false ) {
-			$earnings = $wpdb->get_var( "SELECT SUM(amount) FROM " . $this->db_name . " {$where};" );
+			$query = "SELECT SUM(amount) FROM " . $this->db_name . " {$where};";
+
+			if ( ! empty( $values ) ) {
+				$query = $wpdb->prepare( $query, $values );
+			}
+
+			$earnings = $wpdb->get_var( $query );
+
 			set_transient( $cache_key, $earnings, 3600 );
 		}
 
